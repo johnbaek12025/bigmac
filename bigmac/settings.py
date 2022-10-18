@@ -90,13 +90,12 @@ if not config('DB_NAME'):
 else:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgres',
+            'ENGINE': 'django.db.backends.postgresql',
             'NAME': config('DB_NAME'),
             'HOST': config('DB_HOST'),
             'USER': config('DB_USER'),
             'PASSWORD': config('DB_PASSWORD'),
             'NAME': config('DB_NAME'),
-            'PORT': config('DB_PORT')
         }
     }
 

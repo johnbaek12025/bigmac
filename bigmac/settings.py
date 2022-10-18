@@ -74,13 +74,26 @@ WSGI_APPLICATION = 'bigmac.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if not config('DB_NAME'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgres',
+            'NAME': config('DB_NAME'),
+            'HOST': config('DB_HOST'),
+            'USER': config('DB_USER'),
+            'PASSWORD': config('DB_PASSWORD'),
+            'NAME': config('DB_NAME'),
+            'PORT': config('DB_PORT')
+        }
+    }
+
 
 AUTH_USER_MODEL = 'accounts.User'
 

@@ -25,7 +25,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(' ')
 
 
 # Application definition
@@ -89,8 +89,7 @@ else:
             'HOST': config('DB_HOST'),
             'USER': config('DB_USER'),
             'PASSWORD': config('DB_PASSWORD'),
-            'NAME': config('DB_NAME'),
-            'PORT': config('DB_PORT')
+            'NAME': config('DB_NAME')
         }
     }
 

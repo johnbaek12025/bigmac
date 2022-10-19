@@ -28,7 +28,7 @@ SECRET_KEY = config('SECRET_KEY')
 
 DEBUG = config('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(' ')
 
 # ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(' ')
 ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(' ')
@@ -95,7 +95,6 @@ else:
             'HOST': config('DB_HOST'),
             'USER': config('DB_USER'),
             'PASSWORD': config('DB_PASSWORD'),
-            'NAME': config('DB_NAME'),
         }
     }
 

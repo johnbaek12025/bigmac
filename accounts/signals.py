@@ -13,7 +13,6 @@ def post_save_create_profile_receiver(sender, instance, created, **kwargs):
     At here Sender is the user model
 
     """
-    print(created)
     if created:
         UserProfile.objects.create(user=instance)
     else:

@@ -10,8 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+from email.policy import default
 from pathlib import Path
 from decouple import config
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,10 +25,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
+
 DEBUG = config('DEBUG')
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(' ')
 
+# ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(' ')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(' ')
 
 # Application definition
 
@@ -74,6 +79,7 @@ WSGI_APPLICATION = 'bigmac.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
+
 if not config('DB_NAME'):
     DATABASES = {
         'default': {
@@ -84,12 +90,11 @@ if not config('DB_NAME'):
 else:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgres',
+            'ENGINE': 'django.db.backends.postgresql',
             'NAME': config('DB_NAME'),
             'HOST': config('DB_HOST'),
             'USER': config('DB_USER'),
             'PASSWORD': config('DB_PASSWORD'),
-            'NAME': config('DB_NAME')
         }
     }
 

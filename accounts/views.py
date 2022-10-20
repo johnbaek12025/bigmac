@@ -4,6 +4,7 @@ from django.views import View
 from accounts.form import UserForm
 from accounts.models import User, UserProfile
 from django.contrib import messages
+from django.contrib import auth
 
 from vendor.form import VendorForm
 
@@ -74,3 +75,24 @@ def registerVendor(req):
     }
 
     return render(req, 'accounts/registerVendor.html', context=context)
+
+
+def login(req):
+    if req.method == 'POST':
+        email = req.POST['email']
+        password = req.POST['password']        
+        user = auth.authenticate(email=email, password=password)
+        if user:
+            auth.login(req, user)
+            messages.success(req, 'You are now logged in.')
+            return redirect('dashboard')
+        else:
+            messages.error(req, 'Invalid login credentials')
+            return redirect('login')
+    return render(req, 'accounts/login.html')
+
+def logout(req):
+    return 
+
+def dashboard(req):
+    return render(req, 'accounts/dashboard.html')

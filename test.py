@@ -1,13 +1,5 @@
-def rotate(nums, k):
-    if len(nums) < k:
-        k = k - len(nums)
-    temp = nums[:len(nums) - k]
-    nums[:len(nums) - k] = nums[len(nums) - k:]
-    nums[len(nums) - k:] = temp[:]
-    print(nums)
+role = {'vendor': 1, 'customer': 2}
 
-
-
-nums = [1,2,3]
-k = 4
-rotate(nums, k)
+x = 2
+if x := role.get('vendor', 1):
+    print(x)

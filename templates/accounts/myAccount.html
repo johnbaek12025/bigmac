@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block contents %}
+<h2> Hello, {{user.first_name}} </h2>
+<p>  This is a {{user.get_role}} </p>
+{% include 'includes/alert.html' %}
+{% endblock %}

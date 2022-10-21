@@ -5,12 +5,33 @@ from accounts.form import UserForm
 from accounts.models import User, UserProfile
 from django.contrib import messages
 from django.contrib import auth
-
+from .utility import detectUser
+from django.contrib.auth.decorators import login_required, user_passes_test
 from vendor.form import VendorForm
+from django.core.exceptions import PermissionDenied
 
-def registerUser(request):            
-    if request.method == 'POST':
-        form = UserForm(request.POST)
+
+#Restrict the vendor from accessing the customer page
+def check_role_vendor(user):
+    if user.role == 1:
+        return True
+    else:
+        raise PermissionDenied
+
+#Restrict the customer from accessing the vendor page
+def check_role_customer(user):
+    if user.role == 2:
+        return True
+    else:
+        raise PermissionDenied
+
+
+def registerUser(req):
+    if req.user.is_authenticated:
+        messages.warning(req, 'You are already logged in!')
+        return redirect('myAccount')
+    if req.method == 'POST':
+        form = UserForm(req.POST)
         if form.is_valid():
             # Create the user using the form
             # password = form.cleaned_data['password']
@@ -28,7 +49,7 @@ def registerUser(request):
             user = User.objects.create_user(first_name=first_name, last_name=last_name, username=username, email=email, password=password)
             user.role = User.CUSTOMER
             user.save()
-            messages.success(request, 'Your account has been registered successfully~')
+            messages.success(req, 'Your account has been registered successfully~')
             return redirect('registerUser')
         else:
             print('invalid form')
@@ -38,7 +59,7 @@ def registerUser(request):
     context = {
         'form': form,
     }
-    return render(request, 'accounts/registerUser.html', context)
+    return render(req, 'accounts/registerUser.html', context)
 
 
 def registerVendor(req):
@@ -78,21 +99,41 @@ def registerVendor(req):
 
 
 def login(req):
-    if req.method == 'POST':
+    if req.user.is_authenticated:
+        messages.warning(req, 'You are already logged in!')
+        return redirect('dashboard')
+    elif req.method == 'POST':
         email = req.POST['email']
         password = req.POST['password']        
         user = auth.authenticate(email=email, password=password)
         if user:
             auth.login(req, user)
             messages.success(req, 'You are now logged in.')
-            return redirect('dashboard')
+            return redirect('myAccount')
         else:
             messages.error(req, 'Invalid login credentials')
             return redirect('login')
     return render(req, 'accounts/login.html')
 
 def logout(req):
-    return 
+    auth.logout(req)
+    messages.info(req, "You are logged out.")    
+    return redirect('login')
 
-def dashboard(req):
-    return render(req, 'accounts/dashboard.html')
+@login_required(login_url='login')
+def myAccount(req):
+    user = req.user
+    redirectUrl = detectUser(user)
+    print(redirectUrl)
+    return redirect(redirectUrl)
+
+@login_required(login_url='login')
+@user_passes_test(check_role_customer)
+def custDashboard(req):
+    return render(req, 'accounts/custDashboard.html')
+
+
+@user_passes_test(check_role_vendor)
+@login_required(login_url='login')
+def vendorDashboard(req):
+    return render(req, 'accounts/vendorDashboard.html')

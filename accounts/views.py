@@ -5,7 +5,7 @@ from accounts.form import UserForm
 from accounts.models import User, UserProfile
 from django.contrib import messages
 from django.contrib import auth
-from .utility import detectUser
+from .utility import detectUser, send_verification_email
 from django.contrib.auth.decorators import login_required, user_passes_test
 from vendor.form import VendorForm
 from django.core.exceptions import PermissionDenied
@@ -49,6 +49,10 @@ def registerUser(req):
             user = User.objects.create_user(first_name=first_name, last_name=last_name, username=username, email=email, password=password)
             user.role = User.CUSTOMER
             user.save()
+
+            # Send verification email
+            send_verification_email(req, user)
+            
             messages.success(req, 'Your account has been registered successfully~')
             return redirect('registerUser')
         else:
@@ -76,6 +80,10 @@ def registerVendor(req):
             user = User.objects.create_user(first_name=first_name, last_name=last_name, username=username, email=email, password=password)
             user.role = User.VENDOR
             user.save()
+
+            # Send verification email
+            send_verification_email(req, user)
+
             vendor = v_form.save(commit=False)
             vendor.user = user
             user_profile = UserProfile.objects.get(user=user)
@@ -98,13 +106,18 @@ def registerVendor(req):
     return render(req, 'accounts/registerVendor.html', context=context)
 
 
+def activate(req, uidb64, token):
+    #Activate the user by setting the is_active status to True
+    return 
+
 def login(req):
     if req.user.is_authenticated:
         messages.warning(req, 'You are already logged in!')
         return redirect('dashboard')
     elif req.method == 'POST':
         email = req.POST['email']
-        password = req.POST['password']        
+        password = req.POST['password']
+        print(password)
         user = auth.authenticate(email=email, password=password)
         if user:
             auth.login(req, user)

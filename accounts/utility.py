@@ -1,4 +1,5 @@
 from email.message import EmailMessage
+from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode
@@ -19,15 +20,16 @@ def detectUser(user):
 
 
 
-def send_verification_email(req, user):
-    current_site = get_current_site(req)
-    mail_subject = 'Please activate your account'
-    message = render_to_string('accounts/emails/account_verification_email.html', {
+def send_verification_email(request, user, mail_subject, mail_url):
+    from_email = settings.DEFAULT_FROM_EMAIL
+    current_site = get_current_site(request)
+    message = render_to_string(mail_url, {
         'user': user,
         'domain': current_site,
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-        'token': default_token_generator.make_token(user)
+        'token': default_token_generator.make_token(user),
     })
     to_email = user.email
-    mail = EmailMessage(mail_subject, message, to=[to_email])
+    mail = EmailMessage(mail_subject, message, from_email, to=[to_email])
+    mail.content_subtype = "html"
     mail.send()

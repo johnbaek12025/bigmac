@@ -5,6 +5,8 @@ from accounts.form import UserForm
 from accounts.models import User, UserProfile
 from django.contrib import messages
 from django.contrib import auth
+
+from vendor.models import Vendor
 from .utility import detectUser, send_verification_email
 from django.contrib.auth.decorators import login_required, user_passes_test
 from vendor.form import VendorForm
@@ -165,7 +167,7 @@ def custDashboard(req):
 
 @user_passes_test(check_role_vendor)
 @login_required(login_url='login')
-def vendorDashboard(req):
+def vendorDashboard(req):    
     return render(req, 'accounts/vendorDashboard.html')
 
 
@@ -194,8 +196,32 @@ def reset_password_validate(req, uidb64, token):
         user = User._default_manager.get(pk=uid)
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
-    return 
+
+    if user is not None and default_token_generator.check_token(user, token):
+        req.session['uid'] = uid
+        messages.info(req, 'Please reset your password')        
+        return redirect('reset_password')
+    else:
+        messages.error(req, 'This link has been expired')
+        return redirect('myAccount')
+
 
 
 def reset_password(req):
+    if req.method == 'POST':
+        password = req.POST['password']
+        confirm_password = req.POST['confirm_password']
+        if password == confirm_password:
+            pk = req.session.get('uid')
+            user = User.objects.get(pk=pk)
+            user.set_password(password)
+            user.is_active = True
+            user.save()
+            messages.success(req, 'Password reset successful')
+            return redirect('login')
+        else:
+            messages.error(req, 'Password do not match!')
+            return redirect('reset_password')
+
+
     return render(req, 'accounts/reset_password.html')
